@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proyecto SAR - A través del espejo</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🌍 Proyecto SAR: A través del espejo</h1>
+    <p>Explorando la Tierra con radar multifrecuencia y multipolarización</p>
+  </header>
+
+  <section id="map-section">
+    <div id="map"></div>
+    <div id="controls">
+      <label for="layerSelect">Selecciona capa SAR:</label>
+      <select id="layerSelect">
+        <option value="c_hh">Banda C - Polarización HH</option>
+        <option value="l_hv">Banda L - Polarización HV</option>
+        <option value="p_vv">Banda P - Polarización VV</option>
+      </select>
+    </div>
+    <div id="slider-container">
+      <label for="slider">Opacidad de capa:</label>
+      <input type="range" min="0" max="100" value="100" id="slider" />
+    </div>
+  </section>
+
+  <section id="narrative">
+    <h2>🔍 Hipótesis y Observaciones</h2>
+    <p id="story">Selecciona una capa para comenzar a explorar los patrones físicos de tu zona de estudio.</p>
+  </section>
+
+  <section id="chart-section">
+    <h2>📊 Intensidad de retrodispersión</h2>
+    <div id="chart-controls">
+      <label for="signalFilter">Filtrar señal SAR:</label>
+      <select id="signalFilter">
+        <option value="all">Todas</option>
+        <option value="c_hh">C-HH</option>
+        <option value="l_hv">L-HV</option>
+        <option value="p_vv">P-VV</option>
+      </select>
+    </div>
+    <canvas id="sarChart" width="400" height="200"></canvas>
+  </section>
+
+  <section id="info-panel">
+    <h2>📍 Propiedades del punto seleccionado</h2>
+    <div id="pointData">
+      <p>Haz clic en el mapa para ver las propiedades medidas.</p>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
