@@ -5,7 +5,7 @@ This folder contains a professional template for a remote sensing project using 
 Contents
 - `index.html` — Report/template in HTML (English).
 - `styles.css` — Styles for the template.
-- `script.js` — Lightweight interactions (navigation and copy commands).
+- `script.js` — Lightweight interactions (navigation, copy commands, and weather queries using Open-Meteo API).
 - `process_sar.py` — Minimal example: convert SAR bands to dB and compute VV-VH difference.
 - `sample_visualization.py` — Save a PNG visualization from a SAR GeoTIFF.
 

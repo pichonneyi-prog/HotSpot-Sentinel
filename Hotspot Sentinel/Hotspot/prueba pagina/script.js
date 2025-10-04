@@ -151,13 +151,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.__hotspot_arrows_layer) { window.__hotspot_arrows_layer.clearLayers(); }
         if (window.__hotspot_fires_layer) { window.__hotspot_fires_layer.clearLayers(); }
         if (window.__hotspot_smoke_layer) { window.__hotspot_smoke_layer.clearLayers(); }
+        if (window.__appears_layer) { window.__appears_layer.clearLayers(); }
+        if (window.__burned_areas_layer) { window.__burned_areas_layer.clearLayers(); }
       });
       mapEl.parentNode.insertBefore(clearBtn, addLayerBtn.nextSibling);
 
-      // FIRMS (NASA) layer placeholder
-      if (!window.__firms_layer) window.__firms_layer = L.layerGroup().addTo(map);
+      // APPEARS (NASA) layer placeholder
+      if (!window.__appears_layer) window.__appears_layer = L.layerGroup().addTo(map);
 
-      // FIRMS helper functions and UI handlers (DOM controls are in index.html)
+      // APPEARS helper functions and UI handlers
       function parseFIRMSCSV(text) {
         var lines = text.split(/\r?\n/).filter(function(l){ return l.trim(); });
         if (!lines.length) return [];
@@ -171,122 +173,165 @@ document.addEventListener('DOMContentLoaded', function () {
         return rows;
       }
 
-      // Helper: compute age string from FIRMS acquisition date/time (acq_date, acq_time)
-      function computeAgeText(acq_date, acq_time) {
-        try {
-          if (!acq_date) return 'Fecha desconocida';
-          var dateStr = acq_date + (acq_time ? 'T' + acq_time : 'T00:00');
-          var d = new Date(dateStr);
-          if (isNaN(d.getTime())) {
-            // try replacing space with T
-            d = new Date(acq_date + 'T' + (acq_time || '00:00'));
-            if (isNaN(d.getTime())) return 'Fecha inválida';
+      var appearsTaskId = null; // store current task ID
+
+      function setAppearsStatus(msg, isError) {
+        var appearsStatus = document.getElementById('appears-status');
+        if (!appearsStatus) return;
+        appearsStatus.textContent = msg || '';
+        appearsStatus.style.color = isError ? '#ff6b6b' : 'var(--muted)';
+      }
+
+      // Create APPEARS task
+      var appearsCreateBtn = document.getElementById('appears-create-task');
+      if (appearsCreateBtn) {
+        appearsCreateBtn.addEventListener('click', async function () {
+          var token = document.getElementById('appears-token')?.value || '';
+          var product = document.getElementById('appears-product')?.value || '';
+          var startDate = document.getElementById('appears-start-date')?.value || '';
+          var endDate = document.getElementById('appears-end-date')?.value || '';
+          var bbox = document.getElementById('appears-bbox')?.value || '';
+          if (!token || !product || !startDate || !endDate || !bbox) {
+            setAppearsStatus('Completa todos los campos.', true);
+            return;
           }
-          var now = new Date();
-          var diffMs = now - d;
-          var diffDays = Math.floor(diffMs / (1000*60*60*24));
-          if (diffDays > 0) return 'hace ' + diffDays + ' día' + (diffDays>1?'s':'');
-          var diffHours = Math.floor(diffMs / (1000*60*60));
-          if (diffHours > 0) return 'hace ' + diffHours + ' hora' + (diffHours>1?'s':'');
-          var diffMins = Math.floor(diffMs / (1000*60));
-          return 'hace ' + Math.max(1,diffMins) + ' min';
-        } catch (e) { return 'Edad desconocida'; }
-      }
-
-      var firmsLoadBtn = document.getElementById('firms-load');
-      var firmsClearBtn = document.getElementById('firms-clear');
-      var firmsStatus = document.getElementById('firms-status');
-
-      function setFirmsStatus(msg, isError) {
-        if (!firmsStatus) return;
-        firmsStatus.textContent = msg || '';
-        firmsStatus.style.color = isError ? '#ff6b6b' : 'var(--muted)';
-      }
-
-      if (firmsLoadBtn) {
-        firmsLoadBtn.addEventListener('click', async function () {
-          var key = document.getElementById('firms-api-key')?.value || '';
-          var sensor = document.getElementById('firms-sensor')?.value || 'VIIRS_SNPP_NRT';
-          if (!key) { setFirmsStatus('Introduce tu API key de FIRMS en el campo.', true); return; }
-          setFirmsStatus('Descargando FIRMS...');
+          setAppearsStatus('Creando tarea APPEARS...');
           try {
-            var url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${encodeURIComponent(key)}/${encodeURIComponent(sensor)}/world/1`;
-            var r = await fetch(url);
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            var txt = await r.text();
-            var rows = parseFIRMSCSV(txt);
-            if (!rows.length) { setFirmsStatus('No se encontraron puntos en la respuesta.', true); return; }
-            if (!window.__firms_layer) window.__firms_layer = L.layerGroup().addTo(map);
-            window.__firms_layer.clearLayers();
-            rows.forEach(function(r){
-              var lat = parseFloat(r.latitude || r.lat || r.LATITUDE || r.LAT);
-              var lon = parseFloat(r.longitude || r.lon || r.LONGITUDE || r.LON);
-              if (isNaN(lat) || isNaN(lon)) return;
-              var bright = r.bright_ti4 || r.bright_ti5 || r.bright_t31 || r.brightness || '';
-              var conf = (r.confidence || r.confidence_level || '').toString();
-              var ageText = computeAgeText(r.acq_date, r.acq_time);
-              // color & size by age (older -> paler smaller, recent -> bright red larger)
-              var ageDays = 9999;
-              try { var d = new Date((r.acq_date || '') + 'T' + (r.acq_time || '00:00')); ageDays = Math.floor((new Date() - d)/(1000*60*60*24)); } catch(e) { ageDays = 9999; }
-              var radius = Math.max(4, 12 - Math.min(10, ageDays));
-              var color = ageDays <= 1 ? '#ff3300' : (ageDays <= 7 ? '#ff9900' : '#ffcc66');
-              var circle = L.circleMarker([lat, lon], { radius: radius, fillColor: color, color: '#111', weight:0.6, fillOpacity: 0.9 });
-              circle.bindPopup(`<strong>Incendio detectado</strong><br>${lat.toFixed(3)}, ${lon.toFixed(3)}<br>${ageText}<br>Bright: ${bright}<br>Confidence: ${conf}`);
-              circle.addTo(window.__firms_layer);
+            var taskData = {
+              task_type: 'area',
+              task_name: 'Hotspots_' + Date.now(),
+              params: {
+                products: [product],
+                startDate: startDate,
+                endDate: endDate,
+                coordinates: bbox.split(',').map(parseFloat)
+              }
+            };
+            var r = await fetch('https://appeears.earthdatacloud.nasa.gov/api/task', {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(taskData)
             });
-            setFirmsStatus('Cargados ' + window.__firms_layer.getLayers().length + ' puntos.');
-            try { var bounds = window.__firms_layer.getBounds(); if (bounds.isValid()) map.fitBounds(bounds.pad(0.2)); } catch (e) {}
+            if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + await r.text());
+            var task = await r.json();
+            appearsTaskId = task.task_id;
+            setAppearsStatus('Tarea creada: ' + appearsTaskId + '. Consulta el estado.');
           } catch (err) {
-            console.error('FIRMS load error', err);
-            setFirmsStatus('Error al descargar FIRMS: ' + (err.message || err), true);
+            console.error('APPEARS create error', err);
+            setAppearsStatus('Error creando tarea: ' + (err.message || err), true);
           }
         });
       }
 
-      if (firmsClearBtn) {
-        firmsClearBtn.addEventListener('click', function () {
-          if (window.__firms_layer) window.__firms_layer.clearLayers();
-          setFirmsStatus('Capa FIRMS limpiada.');
+      // Check APPEARS task status
+      var appearsCheckBtn = document.getElementById('appears-check-status');
+      if (appearsCheckBtn) {
+        appearsCheckBtn.addEventListener('click', async function () {
+          if (!appearsTaskId) {
+            setAppearsStatus('Primero crea una tarea.', true);
+            return;
+          }
+          var token = document.getElementById('appears-token')?.value || '';
+          if (!token) {
+            setAppearsStatus('Introduce el token.', true);
+            return;
+          }
+          setAppearsStatus('Consultando estado...');
+          try {
+            var r = await fetch('https://appeears.earthdatacloud.nasa.gov/api/task/' + appearsTaskId, {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            var task = await r.json();
+            setAppearsStatus('Estado: ' + task.status + (task.status === 'done' ? ' - Listo para descargar.' : ''));
+          } catch (err) {
+            console.error('APPEARS status error', err);
+            setAppearsStatus('Error consultando estado: ' + (err.message || err), true);
+          }
         });
       }
 
-      // Local CSV file input handler (fallback cuando la API no funcione)
-      var firmsFileInput = document.getElementById('firms-file');
-      if (firmsFileInput) {
-        firmsFileInput.addEventListener('change', function (e) {
-          var f = (e.target.files && e.target.files[0]);
-          if (!f) return;
-          var reader = new FileReader();
-          reader.onload = function (ev) {
-            try {
-              var txt = ev.target.result;
-              var rows = parseFIRMSCSV(txt);
-              if (!rows.length) { setFirmsStatus('CSV vacío o en formato inesperado.', true); return; }
-              if (!window.__firms_layer) window.__firms_layer = L.layerGroup().addTo(map);
-              window.__firms_layer.clearLayers();
-                rows.forEach(function(r){
-                  var lat = parseFloat(r.latitude || r.lat || r.LATITUDE || r.LAT);
-                  var lon = parseFloat(r.longitude || r.lon || r.LONGITUDE || r.LON);
-                  if (isNaN(lat) || isNaN(lon)) return;
-                  var bright = r.bright_ti4 || r.bright_ti5 || r.bright_t31 || r.brightness || '';
-                  var conf = (r.confidence || r.confidence_level || '').toString();
-                  var ageText = computeAgeText(r.acq_date, r.acq_time);
-                  var ageDays = 9999;
-                  try { var d = new Date((r.acq_date || '') + 'T' + (r.acq_time || '00:00')); ageDays = Math.floor((new Date() - d)/(1000*60*60*24)); } catch(e) { ageDays = 9999; }
-                  var radius = Math.max(4, 12 - Math.min(10, ageDays));
-                  var color = ageDays <= 1 ? '#ff3300' : (ageDays <= 7 ? '#ff9900' : '#ffcc66');
-                  var circle = L.circleMarker([lat, lon], { radius: radius, fillColor: color, color: '#111', weight:0.6, fillOpacity: 0.9 });
-                  circle.bindPopup(`<strong>Incendio detectado</strong><br>${lat.toFixed(3)}, ${lon.toFixed(3)}<br>${ageText}<br>Bright: ${bright}<br>Confidence: ${conf}`);
-                  circle.addTo(window.__firms_layer);
-                });
-              setFirmsStatus('Cargados ' + window.__firms_layer.getLayers().length + ' puntos desde CSV local.');
-              try { var bounds = window.__firms_layer.getBounds(); if (bounds.isValid()) map.fitBounds(bounds.pad(0.2)); } catch (e) {}
-            } catch (err) { setFirmsStatus('Error parseando CSV: ' + err.message, true); }
-          };
-          reader.readAsText(f);
+      // Download APPEARS data
+      var appearsDownloadBtn = document.getElementById('appears-download');
+      if (appearsDownloadBtn) {
+        appearsDownloadBtn.addEventListener('click', async function () {
+          if (!appearsTaskId) {
+            setAppearsStatus('Primero crea una tarea.', true);
+            return;
+          }
+          var token = document.getElementById('appears-token')?.value || '';
+          if (!token) {
+            setAppearsStatus('Introduce el token.', true);
+            return;
+          }
+          setAppearsStatus('Descargando datos...');
+          try {
+            var r = await fetch('https://appeears.earthdatacloud.nasa.gov/api/bundle/' + appearsTaskId, {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            var bundle = await r.json();
+            // Assume bundle has files, download the first CSV or similar
+            var fileUrl = bundle.files[0]?.file_url;
+            if (!fileUrl) throw new Error('No files in bundle');
+            var fileR = await fetch(fileUrl);
+            var csvText = await fileR.text();
+            // Parse CSV and display on map
+            var rows = parseFIRMSCSV(csvText);
+            if (!rows.length) { setAppearsStatus('No se encontraron puntos.', true); return; }
+            if (!window.__appears_layer) window.__appears_layer = L.layerGroup().addTo(map);
+            window.__appears_layer.clearLayers();
+            rows.forEach(function(r){
+              var lat = parseFloat(r.latitude || r.lat);
+              var lon = parseFloat(r.longitude || r.lon);
+              if (isNaN(lat) || isNaN(lon)) return;
+              var acqDate = r.acq_date || r.acqDate || 'Fecha desconocida';
+              var acqTime = r.acq_time || r.acqTime || 'Hora desconocida';
+              var popupContent = `<strong>Hotspot APPEARS</strong><br>Lat: ${lat.toFixed(3)}, Lon: ${lon.toFixed(3)}<br>Fecha: ${acqDate}<br>Hora: ${acqTime}`;
+              var circle = L.circleMarker([lat, lon], { radius: 6, fillColor: '#ff3300', color: '#111', weight:0.6, fillOpacity: 0.9 });
+              circle.bindPopup(popupContent);
+
+              // Tooltip for hover showing date/time
+              circle.on('mouseover', function(e) {
+                this.openPopup();
+              });
+              circle.on('mouseout', function(e) {
+                this.closePopup();
+              });
+
+              circle.addTo(window.__appears_layer);
+            });
+            setAppearsStatus('Cargados ' + window.__appears_layer.getLayers().length + ' puntos.');
+            try { var bounds = window.__appears_layer.getBounds(); if (bounds.isValid()) map.fitBounds(bounds.pad(0.2)); } catch (e) {}
+          } catch (err) {
+            console.error('APPEARS download error', err);
+            setAppearsStatus('Error descargando: ' + (err.message || err), true);
+          }
         });
       }
 
+      // Clear APPEARS layer
+      var appearsClearBtn = document.getElementById('appears-clear');
+      if (appearsClearBtn) {
+        appearsClearBtn.addEventListener('click', function () {
+          if (window.__appears_layer) window.__appears_layer.clearLayers();
+          setAppearsStatus('Capa APPEARS limpiada.');
+        });
+      }
+
+      // Clear burned areas layer
+      var burnedAreasClearBtn = document.getElementById('clear-burned-areas');
+      if (burnedAreasClearBtn) {
+        burnedAreasClearBtn.addEventListener('click', function () {
+          if (window.__burned_areas_layer) window.__burned_areas_layer.clearLayers();
+        });
+      }
+
+      // Burned areas layer placeholder
+      if (!window.__burned_areas_layer) window.__burned_areas_layer = L.layerGroup().addTo(map);
 
       // The plume controls have been moved to the document DOM (outside the map)
 
@@ -447,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function () {
               localWindDir = lookupCache.weather[wkey].winddir;
             } else {
               try {
-                var wurl = `https://api.open-meteo.com/v1/forecast?latitude=${latq}&longitude=${lonq}&current_weather=true&timezone=UTC`;
+                var wurl = `https://api.open-meteo.com/v1/forecast?latitude=${latq}&longitude=${lonq}&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,surface_pressure&past_days=92&forecast_days=16`;
                 var wr = await fetch(wurl);
                 if (wr.ok) {
                   var wj = await wr.json();

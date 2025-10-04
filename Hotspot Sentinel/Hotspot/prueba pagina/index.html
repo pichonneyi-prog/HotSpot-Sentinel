@@ -26,11 +26,11 @@
         </div>
         <nav class="toc" style="margin-top:1rem;">
           <button data-target="#resumen" class="toc-btn">Summary</button>
+          <button data-target="#why-sar" class="toc-btn">Why SAR?</button>
           <button data-target="#area" class="toc-btn">Study Area</button>
           <button data-target="#datasets" class="toc-btn">Datasets</button>
           <button data-target="#metodologia" class="toc-btn">Methodology</button>
           <button data-target="#hipotesis" class="toc-btn">Hypotheses</button>
-          <button data-target="#visualizaciones" class="toc-btn">Visualizations</button>
           <button data-target="#recursos" class="toc-btn">Resources</button>
         </nav>
       </div>
@@ -39,34 +39,42 @@
     <main class="container">
       <section id="resumen" class="card">
         <h2>Summary</h2>
-        <p>Like Alice through the looking glass, this project uses synthetic aperture radar (SAR) data at different frequencies and polarizations to reveal physical processes at the Earth's surface. The template guides the researcher from data download to basic processing and visualization, and includes reproducible example scripts.</p>
+        <p>Imagine peering through a magical lens that sees the world in ways our eyes can't—revealing hidden secrets beneath clouds, at night, or through dense forests. That's the power of Synthetic Aperture Radar (SAR) in this project. We're diving into multibanda and multipolarización data to uncover the Earth's surface processes, from flooding to vegetation health. It's like being a detective with superpowers, using different frequencies and polarizations to paint a fuller picture. This template isn't just a guide; it's your roadmap from grabbing raw data to crafting stunning visualizations, complete with scripts you can tweak and rerun. Exciting times ahead!</p>
+      </section>
+
+      <section id="why-sar" class="card">
+        <h2>Why SAR? A Bit of Background</h2>
+        <p>Ever wondered how we can monitor the Earth even when it's cloudy or dark? SAR is our secret weapon. Unlike optical satellites that rely on sunlight and clear skies, SAR uses radar waves to bounce off surfaces, creating images day or night, rain or shine. It's like having X-ray vision for the planet. In this project, we're exploring different bands—think of them as different colors in a palette—and polarizations, which reveal how surfaces scatter energy. From tracking floods in real-time to assessing forest health without ever stepping foot in the woods, SAR opens up a world of possibilities. And the best part? Much of this data is free and accessible, thanks to missions like Sentinel-1. Let's harness that power!</p>
       </section>
 
       <section id="area" class="card">
         <h2>Study Area (example)</h2>
-        <p>Suggested example: Ebro Delta (Catalonia, Spain). This is a land-sea transition area with wetlands, channels, vegetation and human activity. It's ideal to compare responses in C-band vs L-band and different polarizations (VV/VH or HH/HV).</p>
+        <p>Picture this: the Ebro Delta in Catalonia, Spain—a stunning blend of land and sea where rivers meet the Mediterranean. This dynamic region is a mosaic of wetlands teeming with life, winding channels that shift with the tides, lush vegetation, and bustling human activity from farming to tourism. It's the perfect playground for our SAR experiments, allowing us to see how C-band and L-band radars respond differently, and how polarizations like VV/VH or HH/HV reveal the secrets of water, soil, and structures. Imagine watching floods reshape the landscape or vegetation thrive—it's all here!</p>
       </section>
 
       <section id="datasets" class="card">
         <h2>Recommended datasets</h2>
+        <p>Alright, let's talk about the stars of our show—the datasets that make this SAR magic happen. We've got a fantastic lineup:</p>
         <ul>
-          <li><strong>Sentinel-1 (ESA)</strong> — C-band, VV and VH polarizations (free download via Copernicus/SciHub or AWS).</li>
-          <li><strong>ALOS PALSAR (JAXA)</strong> — L-band, useful for canopy penetration and soil detection.</li>
-          <li><strong>UAVSAR / NISAR (NASA/ISRO)</strong> — L-band / multi-frequency options when available.</li>
+          <li><strong>Sentinel-1 (ESA)</strong> — Our go-to for C-band goodness, with VV and VH polarizations. It's free as a bird via Copernicus, SciHub, or AWS—perfect for everyday monitoring.</li>
+          <li><strong>ALOS PALSAR (JAXA)</strong> — L-band hero, great for peeking through dense canopies and sniffing out soil secrets. A bit more exclusive, but worth the effort.</li>
+          <li><strong>UAVSAR / NISAR (NASA/ISRO)</strong> — L-band wizards with multi-frequency flair when available. These are the heavy hitters for deep insights.</li>
         </ul>
-        <p>Look for multi-polarization products (e.g., VV/VH or HH/HV) and multiple dates for temporal analysis.</p>
+        <p>Pro tip: Hunt for multi-polarization gems like VV/VH or HH/HV, and grab data from multiple dates to watch the Earth change over time. It's like having a time-lapse of the planet's heartbeat!</p>
       </section>
 
       <section id="metodologia" class="card">
         <h2>Methodology (summary)</h2>
+        <p>Alright, let's get our hands dirty! Here's our step-by-step playbook to turn raw SAR data into insights:</p>
         <ol>
-          <li>Download calibrated SAR products (sigma0 or gamma0) as GeoTIFF.</li>
-          <li>Convert to dB: 10 * log10(sigma0) when needed.</li>
-          <li>Apply spatial filters/denoising (optional) and align bands (reproject/resample).</li>
-          <li>Compute comparative indices (e.g., HV/HH ratio, L/C difference in dB).</li>
-          <li>Simple classification: water detection by threshold, change detection between dates.</li>
-          <li>Visualize: RGB composites, web maps (folium) and include auxiliary layers (vectors, orthophotos).</li>
+          <li><strong>Grab the goods:</strong> Download calibrated SAR products (sigma0 or gamma0) as GeoTIFFs—think of them as the raw ingredients for our recipe.</li>
+          <li><strong>Crunch the numbers:</strong> Convert to dB with 10 * log10(sigma0) when needed. It's like turning volume up or down for clarity.</li>
+          <li><strong>Clean it up:</strong> Apply spatial filters or denoising (optional), and align bands by reprojection/resampling. We're polishing the data to shine.</li>
+          <li><strong>Mix and match:</strong> Compute comparative indices, like HV/HH ratios or L/C differences in dB. This is where the magic comparisons happen.</li>
+          <li><strong>Classify away:</strong> Simple stuff like water detection via thresholding, or spotting changes between dates. It's detective work!</li>
+          <li><strong>Show it off:</strong> Visualize with RGB composites, interactive web maps (folium), and layer in vectors or orthophotos for that wow factor.</li>
         </ol>
+        <p>Ready to code? Here's your toolkit:</p>
         <div class="code-block">
           <pre id="cmd-example">pip install rasterio numpy matplotlib folium geopandas scikit-image</pre>
           <button class="copy-btn" data-copy="#cmd-example">Copy command</button>
@@ -80,16 +88,6 @@
           <li>In dense forests, L-band (ALOS) will show higher backscatter due to canopy penetration, while C-band mainly reflects the canopy.</li>
           <li>VV/VH (or HH/HV) differences will highlight vertical structures (trees, infrastructure) versus smooth surfaces (water, bare soil).</li>
         </ul>
-      </section>
-
-      <section id="visualizaciones" class="card">
-        <h2>Suggested visualizations</h2>
-        <ul>
-          <li>RGB composite: assign bands/sources (e.g., L-band -> R, C-band -> G, ratio -> B).</li>
-          <li>Water detection map by thresholding in dB and temporal comparison.</li>
-          <li>Interactive web map (folium) with controls to toggle layers (C-band, L-band, optical).</li>
-        </ul>
-        <p>The example scripts include a minimal workflow to create these products.</p>
       </section>
 
       <section id="map-section" class="card">
@@ -133,34 +131,32 @@
         </div>
       </aside>
 
-      <!-- FIRMS (NASA) fire hotspots controls -->
-      <section id="firms-panel" class="card">
-        <h3>FIRMS — Hotspot (VIIRS) overlay</h3>
-        <p>Introduce tu API key de FIRMS y descarga puntos calientes (CSV). Puedes mostrar los puntos sobre el mapa.</p>
+      <!-- APPEARS (NASA) hotspots controls -->
+      <section id="appears-panel" class="card">
+        <h3>APPEARS — Hotspots (MODIS) overlay</h3>
+        <p>Introduce tu token de Earthdata y crea una tarea para descargar hotspots históricos. Usa productos como MOD14A2.061.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <input id="firms-api-key" type="text" placeholder="FIRMS API key" style="flex:1;min-width:180px;padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);" />
-          <select id="firms-sensor" style="padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);">
-            <option value="VIIRS_SNPP_NRT">VIIRS_SNPP_NRT (NRT)</option>
-            <option value="VIIRS_NOAA20_NRT">VIIRS_NOAA20_NRT (NRT)</option>
-            <option value="MODIS_TERRA_C6">MODIS_TERRA_C6</option>
-          </select>
-          <button id="firms-load" class="map-control-btn primary">Cargar FIRMS</button>
-          <button id="firms-clear" class="map-control-btn ghost">Limpiar FIRMS</button>
-          <label class="map-control-btn" style="display:inline-flex;align-items:center;gap:8px;padding:.35rem .5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
-            <input id="firms-file" type="file" accept=".csv" style="display:inline-block;" />
-            Cargar CSV
-          </label>
-          <a href="sample_firms.csv" download class="map-control-btn ghost" style="text-decoration:none;">Descargar CSV ejemplo</a>
-          <button id="firms-show-sample" class="map-control-btn primary">Mostrar históricos (ejemplo)</button>
-          <label style="display:flex;align-items:center;gap:6px;color:var(--muted);">
-            <input id="firms-cluster-toggle" type="checkbox" checked /> Agrupar (clustering)
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;color:var(--muted);">
-            <input id="firms-buffer-toggle" type="checkbox" /> Mostrar buffers
-          </label>
-          <input id="firms-buffer-radius" type="number" value="500" min="10" step="10" style="width:90px;padding:.35rem;border-radius:6px;border:1px solid rgba(255,255,255,0.04);" />
+          <input id="appears-token" type="text" placeholder="Earthdata token" style="flex:1;min-width:180px;padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);" />
+          <input id="appears-product" type="text" placeholder="Producto (e.g., MOD14A2.061)" value="MOD14A2.061" style="flex:1;min-width:180px;padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);" />
+          <input id="appears-start-date" type="date" placeholder="Fecha inicio" style="padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);" />
+          <input id="appears-end-date" type="date" placeholder="Fecha fin" style="padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);" />
+          <input id="appears-bbox" type="text" placeholder="Bbox (min_lon,min_lat,max_lon,max_lat)" style="flex:1;min-width:200px;padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);" />
+          <button id="appears-create-task" class="map-control-btn primary">Crear tarea</button>
+          <button id="appears-check-status" class="map-control-btn ghost">Consultar estado</button>
+          <button id="appears-download" class="map-control-btn primary">Descargar datos</button>
+          <button id="appears-clear" class="map-control-btn ghost">Limpiar APPEARS</button>
         </div>
-        <div id="firms-status" style="margin-top:8px;color:var(--muted);font-size:0.9rem;"></div>
+        <div id="appears-status" style="margin-top:8px;color:var(--muted);font-size:0.9rem;"></div>
+      </section>
+
+      <section id="burned-areas-panel" class="card">
+        <h3>Áreas Quemadas — Overlay</h3>
+        <p>Carga las áreas quemadas procesadas de los datasets MOD14A2/MYD14A2.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button id="load-burned-areas" class="map-control-btn primary">Cargar Áreas Quemadas</button>
+          <button id="clear-burned-areas" class="map-control-btn ghost">Limpiar Áreas Quemadas</button>
+        </div>
+        <div id="burned-areas-status" style="margin-top:8px;color:var(--muted);font-size:0.9rem;"></div>
       </section>
 
       <section id="weather-panel" class="card">
