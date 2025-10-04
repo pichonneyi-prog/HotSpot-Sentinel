@@ -1,9 +1,9 @@
 /* Reemplazo completo del CSS con estilos profesionales para la plantilla SAR */
 :root {
-	--bg: #f7f9fb;
-	--card: #ffffff;
-	--accent: #0b6e99;
-	--muted: #6b7280;
+	--bg: #071028; /* deep space navy */
+	--card: #0b1220; /* slightly lighter card */
+	--accent: #d32f2f; /* NASA red-like accent */
+	--muted: #9aa6b2;
 }
 
 * { box-sizing: border-box; }
@@ -11,8 +11,8 @@
 body {
 	margin: 0;
 	font-family: Inter, Arial, Helvetica, sans-serif;
-	background: var(--bg);
-	color: #111827;
+	background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,0.02), transparent), var(--bg);
+	color: #e6eef6;
 	-webkit-font-smoothing: antialiased;
 }
 
@@ -23,34 +23,44 @@ body {
 }
 
 .site-header {
-	background: linear-gradient(90deg,#083e60,#0b6e99);
+	background: linear-gradient(90deg, rgba(10,22,36,0.95), rgba(8,16,30,0.95));
 	color: #fff;
 	padding: 1.25rem 0.5rem;
+	border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-.site-header h1 { margin: 0; font-size: 1.5rem; }
-.site-header .lead { margin: .25rem 0 0; color: rgba(255,255,255,0.9); }
+.site-header h1 { margin: 0; font-size: 1.4rem; font-family: 'Orbitron', Inter, sans-serif; letter-spacing: 0.6px; }
+.site-header .lead { margin: .25rem 0 0; color: rgba(230,238,246,0.85); }
+.header-row { display:flex; align-items:center; gap:0.75rem; }
+.nasa-badge { background: linear-gradient(180deg,#b71c1c,#8b0f0f); color:#fff; padding:.35rem .6rem; border-radius:6px; font-weight:700; font-family:'Orbitron',sans-serif; letter-spacing:1px; box-shadow: 0 4px 10px rgba(0,0,0,0.45); }
+.nasa-badge .badge-circle { display:inline-block; padding:.15rem .45rem; border-radius:4px; background: rgba(255,255,255,0.06); font-size:0.85rem; }
+
+/* Map control button styles */
+.map-control-btn { margin-left:.5rem; padding:.4rem .6rem; border-radius:6px; cursor:pointer; border:none; font-weight:600; }
+.map-control-btn.primary { background: var(--accent); color:#fff; }
+.map-control-btn.warn { background: #ef4444; color:#fff; }
+.map-control-btn.ghost { background: transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); }
 
 .toc { display:flex; flex-wrap:wrap; gap: .5rem; margin: 1rem 0; }
 .toc-btn {
-	background: #fff; border: 1px solid #e6eef6; padding:.5rem .75rem; border-radius:6px; cursor:pointer; color:var(--accent);
+	background: transparent; border: 1px solid rgba(255,255,255,0.06); padding:.5rem .75rem; border-radius:6px; cursor:pointer; color:var(--muted);
 }
-.toc-btn:hover { background:#f0fbff; }
+.toc-btn:hover { background: rgba(255,255,255,0.02); color: #fff; }
 
-.card { background:var(--card); border-radius:8px; padding:1rem; margin-bottom:1rem; box-shadow: 0 1px 0 rgba(16,24,40,0.03); }
-.card h2 { margin-top: 0; color: #0f172a; }
-.card p, .card ul, .card ol { color: #323f4b; }
+.card { background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border-radius:8px; padding:1rem; margin-bottom:1rem; box-shadow: 0 6px 18px rgba(2,6,23,0.6); border: 1px solid rgba(255,255,255,0.03); }
+.card h2 { margin-top: 0; color: #e6eef6; font-family:'Orbitron', Inter, sans-serif; }
+.card p, .card ul, .card ol { color: var(--muted); }
 
-.code-block { background:#0b2c3a; color:#d6f5ff; padding: .75rem; border-radius:6px; display:flex; align-items:center; gap:.5rem; }
+.code-block { background:#021425; color:#d6f5ff; padding: .75rem; border-radius:6px; display:flex; align-items:center; gap:.5rem; border:1px solid rgba(255,255,255,0.03); }
 .code-block pre { margin:0; white-space:pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:.9rem; }
 .copy-btn { margin-left:auto; background:var(--accent); color:#fff; border:none; padding:.45rem .6rem; border-radius:6px; cursor:pointer; }
 
 .site-footer { text-align:center; color:var(--muted); padding:1rem 0; }
 
 /* Panel de clima y riesgo */
-.risk-high { color: #b91c1c; font-weight: 700; }
-.risk-moderate { color: #b45309; font-weight: 700; }
-.risk-low { color: #065f46; font-weight: 700; }
+.risk-high { color: #ff6b6b; font-weight: 700; }
+.risk-moderate { color: #ffb74d; font-weight: 700; }
+.risk-low { color: #7ee3b8; font-weight: 700; }
 .csv-btn { margin-top:.5rem; background:#0b6e99; color:#fff; border:none; padding:.45rem .6rem; border-radius:6px; cursor:pointer; }
 
 .weather-grid { display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap; }
@@ -61,3 +71,11 @@ body {
 	.container { padding: 0 .5rem; }
 	.toc { gap:.25rem; }
 }
+
+/* Map marker icon tweaks */
+.wind-arrow-icon { pointer-events: auto; }
+.fire-emoji-icon { pointer-events: auto; text-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+
+/* Small legend control for Leaflet */
+.map-legend { background: rgba(3,6,12,0.85); padding: .5rem .6rem; border-radius:6px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); font-size:0.85rem; color:#e6eef6; border:1px solid rgba(255,255,255,0.03); }
+.map-legend strong { display:block; margin-bottom:6px; color:#fff; }

@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Prompt para añadir una capa XYZ/WMS (segura: solo URL introducida por usuario)
       var addLayerBtn = document.createElement('button');
       addLayerBtn.textContent = 'Agregar capa XYZ/WMS';
-      addLayerBtn.style.cssText = 'margin-top:.5rem;padding:.4rem .6rem;border-radius:6px;cursor:pointer;background:#0b6e99;color:#fff;border:none;';
+  addLayerBtn.className = 'map-control-btn primary';
       addLayerBtn.addEventListener('click', function () {
         var url = prompt('Introduce URL de tiles XYZ o WMS (por ejemplo https://.../{z}/{x}/{y}.png)');
         if (!url) return;
@@ -90,6 +90,27 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       mapEl.parentNode.insertBefore(addLayerBtn, mapEl.nextSibling);
+
+      // Botón para limpiar marcadores (flechas y fuegos)
+      var clearBtn = document.createElement('button');
+      clearBtn.textContent = 'Limpiar marcadores';
+  clearBtn.className = 'map-control-btn warn';
+      clearBtn.addEventListener('click', function () {
+        if (window.__hotspot_arrows_layer) { window.__hotspot_arrows_layer.clearLayers(); }
+        if (window.__hotspot_fires_layer) { window.__hotspot_fires_layer.clearLayers(); }
+      });
+      mapEl.parentNode.insertBefore(clearBtn, addLayerBtn.nextSibling);
+
+      // Añadir leyenda simple al mapa
+      var legend = L.control({ position: 'bottomright' });
+      legend.onAdd = function () {
+        var div = L.DomUtil.create('div', 'map-legend');
+        div.innerHTML = '<div><strong>Leyenda</strong></div>' +
+          '<div style="margin-top:6px">&#8593; Flecha: dirección del viento (apunta hacia donde va)</div>' +
+          '<div style="margin-top:6px">🔥 Emoji: posible zona de alto riesgo</div>';
+        return div;
+      };
+      legend.addTo(map);
       
       // Estructura para guardar registros de clics
       var clickLogs = [];
@@ -105,8 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       document.getElementById('download-csv').addEventListener('click', function () {
         if (!clickLogs.length) return alert('No hay registros para descargar');
-        var header = ['timestamp','lat','lon','temp_C','humidity_pct','wind_kmh','risk'];
-        var rows = [header].concat(clickLogs.map(function(r){ return [r.timestamp, r.lat, r.lon, r.temp, r.humidity, r.wind, r.risk]; }));
+        var header = ['timestamp','lat','lon','temp_C','humidity_pct','wind_kmh','winddir_deg','risk'];
+        var rows = [header].concat(clickLogs.map(function(r){ return [r.timestamp, r.lat, r.lon, r.temp, r.humidity, r.wind, r.winddir, r.risk]; }));
         downloadCSV(rows, 'weather_clicks.csv');
       });
 
@@ -141,8 +162,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var lat = e.latlng.lat.toFixed(4);
         var lon = e.latlng.lng.toFixed(4);
 
-        // Open-Meteo API (sin clave) — solicitamos temperatura, humedad y viento horario
-        var url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relativehumidity_2m,windspeed_10m,windspeed_80m&current_weather=true&timezone=UTC`;
+  // Open-Meteo API (sin clave) — solicitamos temperatura, humedad, viento y dirección horario
+  var url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relativehumidity_2m,windspeed_10m,windspeed_80m,winddirection_10m&current_weather=true&timezone=UTC`;
 
         try {
           var res = await fetch(url);
@@ -152,6 +173,8 @@ document.addEventListener('DOMContentLoaded', function () {
           var temp = data.current_weather?.temperature ?? (data.hourly?.temperature_2m?.[0] ?? null);
           var wind = data.current_weather?.windspeed ?? (data.hourly?.windspeed_10m?.[0] ?? null);
           var humidity = data.hourly?.relativehumidity_2m?.[0] ?? null;
+          // Wind direction in degrees (meteorological: from where the wind blows)
+          var winddir = data.current_weather?.winddirection ?? (data.hourly?.winddirection_10m?.[0] ?? null);
 
           // Heurística simple de riesgo de incendio
           // Regla: Alto si temp>=30°C, humedad<=30% y viento>=20 km/h
@@ -166,17 +189,54 @@ document.addEventListener('DOMContentLoaded', function () {
             `<p><strong>Temperatura:</strong> ${temp ?? '—'} °C</p>` +
             `<p><strong>Humedad:</strong> ${humidity ?? '—'} %</p>` +
             `<p><strong>Viento:</strong> ${wind ?? '—'} km/h</p>` +
+            `<p><strong>Dirección del viento:</strong> ${winddir ?? '—'}°</p>` +
             `<p><strong>Riesgo estimado de incendio:</strong> <strong class="risk-${risk.toLowerCase()}">${risk}</strong></p>`;
 
           var winfo = document.getElementById('weather-info');
           var details = document.getElementById('weather-details');
           if (details) details.innerHTML = infoHtml;
 
-          // Guardar registro
+          // Guardar registro (incluye winddir)
           var now = new Date().toISOString();
-          var rec = { timestamp: now, lat: lat, lon: lon, temp: temp, humidity: humidity, wind: wind, risk: risk };
+          var rec = { timestamp: now, lat: lat, lon: lon, temp: temp, humidity: humidity, wind: wind, winddir: winddir, risk: risk };
           clickLogs.unshift(rec); // push al frente
           if (clickLogs.length > 200) clickLogs.pop();
+
+          // Draw wind arrow (pointing TO the wind direction). Open-Meteo provides direction FROM, so add 180° to get direction TO.
+          try {
+            var arrowsLayer = window.__hotspot_arrows_layer || L.layerGroup().addTo(map);
+            window.__hotspot_arrows_layer = arrowsLayer;
+
+            if (winddir !== null) {
+              var dirTo = (parseFloat(winddir) + 180) % 360;
+              // Scale arrow size by wind speed (min 16, max 64)
+              var speed = (wind || 0);
+              var size = Math.min(64, Math.max(16, 16 + Math.round(speed)));
+              // Simple SVG arrow rotated to dirTo and scaled
+              var arrowSvg = `<?xml version="1.0" encoding="UTF-8"?><svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 24 24'><g transform='translate(12,12) rotate(${dirTo}) translate(-12,-12)'><path d='M12 2 L16 9 L12 7 L8 9 Z' fill='#0b6e99'/><rect x='11' y='7' width='2' height='10' fill='#0b6e99' rx='1'/></g></svg>`;
+              var iconSize = [size, size];
+              var iconAnchor = [Math.round(size/2), Math.round(size/2)];
+              var arrowIcon = L.divIcon({ html: arrowSvg, className: 'wind-arrow-icon', iconSize: iconSize, iconAnchor: iconAnchor });
+              var arrowMarker = L.marker([parseFloat(lat), parseFloat(lon)], { icon: arrowIcon }).addTo(arrowsLayer);
+              arrowMarker.bindPopup(`<strong>Viento:</strong> ${wind ?? '—'} km/h<br><strong>Dirección (TO):</strong> ${dirTo}°`);
+            }
+          } catch (err) {
+            console.warn('No se pudo dibujar la flecha de viento:', err);
+          }
+
+          // Añadir marcador con emoji de fuego si el riesgo es Alto
+          try {
+            if (risk === 'Alto') {
+              var firesLayer = window.__hotspot_fires_layer || L.layerGroup().addTo(map);
+              window.__hotspot_fires_layer = firesLayer;
+              var fireHtml = `<div style="font-size:28px;line-height:28px;">🔥</div>`;
+              var fireIcon = L.divIcon({ html: fireHtml, className: 'fire-emoji-icon', iconSize: [28,28], iconAnchor: [14,14] });
+              var fireMarker = L.marker([parseFloat(lat), parseFloat(lon)], { icon: fireIcon }).addTo(firesLayer);
+              fireMarker.bindPopup(`<strong>ALTO RIESGO</strong><br>${lat}, ${lon}`);
+            }
+          } catch (err) {
+            console.warn('No se pudo añadir marcador de fuego:', err);
+          }
 
           // Actualizar gráfico con hourly si existe, sino con el punto actual
           try {
