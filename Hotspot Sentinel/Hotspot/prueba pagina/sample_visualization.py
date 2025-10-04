@@ -2,10 +2,10 @@
 """
 sample_visualization.py
 
-Script de ejemplo para visualizar un GeoTIFF SAR (una banda) con matplotlib.
+Example script to visualize a SAR GeoTIFF (single band) with matplotlib.
 
-Uso: python sample_visualization.py input.tif output.png
-Requisitos: rasterio, matplotlib, numpy
+Usage: python sample_visualization.py input.tif output.png
+Requirements: rasterio, matplotlib, numpy
 """
 import argparse
 import rasterio
@@ -20,9 +20,9 @@ def to_db(arr):
 
 
 def main():
-    p = argparse.ArgumentParser(description='Visualizar GeoTIFF SAR (una banda)')
-    p.add_argument('input', help='GeoTIFF de entrada')
-    p.add_argument('output', help='Archivo PNG de salida')
+    p = argparse.ArgumentParser(description='Visualize a SAR GeoTIFF (single band)')
+    p.add_argument('input', help='Input GeoTIFF')
+    p.add_argument('output', help='Output PNG file')
     args = p.parse_args()
 
     with rasterio.open(args.input) as src:

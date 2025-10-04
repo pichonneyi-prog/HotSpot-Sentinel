@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css" />
+    <!-- PapaParse for robust CSV parsing and Leaflet.markercluster for clustering many points -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   </head>
   <body>
     <header class="site-header">
@@ -15,116 +18,184 @@
         <div class="header-row">
           <div class="nasa-badge" aria-hidden="true"><span class="badge-circle">SPACE</span></div>
           <div>
-            <h1>Proyecto SAR — Análisis Multibanda y Multipolarización</h1>
-            <p class="lead">Un informe profesional (plantilla) en español para analizar datos SAR de distintas frecuencias y polarizaciones.</p>
+            <h1>SAR Project 
+              <span style="font-size:0.85rem;display:block;color:rgba(230,238,246,0.85);">Multiband & Multipolarization Analysis</span>
+            </h1>
+            <p class="lead">A professional (template) report in English to analyze SAR data across frequencies and polarizations.</p>
           </div>
         </div>
+        <nav class="toc" style="margin-top:1rem;">
+          <button data-target="#resumen" class="toc-btn">Summary</button>
+          <button data-target="#area" class="toc-btn">Study Area</button>
+          <button data-target="#datasets" class="toc-btn">Datasets</button>
+          <button data-target="#metodologia" class="toc-btn">Methodology</button>
+          <button data-target="#hipotesis" class="toc-btn">Hypotheses</button>
+          <button data-target="#visualizaciones" class="toc-btn">Visualizations</button>
+          <button data-target="#recursos" class="toc-btn">Resources</button>
+        </nav>
       </div>
     </header>
 
     <main class="container">
-      <nav class="toc">
-        <button data-target="#resumen" class="toc-btn">Resumen</button>
-        <button data-target="#area" class="toc-btn">Área de estudio</button>
-        <button data-target="#datasets" class="toc-btn">Datasets</button>
-        <button data-target="#metodologia" class="toc-btn">Metodología</button>
-        <button data-target="#hipotesis" class="toc-btn">Hipótesis</button>
-        <button data-target="#visualizaciones" class="toc-btn">Visualizaciones</button>
-        <button data-target="#recursos" class="toc-btn">Recursos</button>
-      </nav>
-
       <section id="resumen" class="card">
-        <h2>Resumen</h2>
-        <p>Como Alicia atravesando el espejo, este proyecto utiliza datos de radar de apertura sintética (SAR) en distintas frecuencias y polarizaciones para revelar procesos físicos en la superficie terrestre. La plantilla guía al investigador desde la descarga de datos hasta métodos básicos de procesamiento y visualización, e incluye scripts de ejemplo reproducibles.</p>
+        <h2>Summary</h2>
+        <p>Like Alice through the looking glass, this project uses synthetic aperture radar (SAR) data at different frequencies and polarizations to reveal physical processes at the Earth's surface. The template guides the researcher from data download to basic processing and visualization, and includes reproducible example scripts.</p>
       </section>
 
       <section id="area" class="card">
-        <h2>Área de estudio (ejemplo)</h2>
-        <p>Ejemplo propuesto: Delta del Ebro (Cataluña, España). Se trata de una zona de transición terrestre-marina con humedales, canales, vegetación y actividad humana. Es ideal para comparar respuestas en C-band vs L-band y polarizaciones (VV/VH o HH/HV).</p>
+        <h2>Study Area (example)</h2>
+        <p>Suggested example: Ebro Delta (Catalonia, Spain). This is a land-sea transition area with wetlands, channels, vegetation and human activity. It's ideal to compare responses in C-band vs L-band and different polarizations (VV/VH or HH/HV).</p>
       </section>
 
       <section id="datasets" class="card">
-        <h2>Datasets recomendados</h2>
+        <h2>Recommended datasets</h2>
         <ul>
-          <li><strong>Sentinel-1 (ESA)</strong> — Banda C, polarizaciones VV y VH (descarga gratuita vía Copernicus/SciHub o AWS).</li>
-          <li><strong>ALOS PALSAR (JAXA)</strong> — Banda L, útil para penetración de dosel y detección de suelo.</li>
-          <li><strong>UAVSAR / NISAR (NASA/ISRO)</strong> — opciones L-band/multifrecuencia cuando estén disponibles.</li>
+          <li><strong>Sentinel-1 (ESA)</strong> — C-band, VV and VH polarizations (free download via Copernicus/SciHub or AWS).</li>
+          <li><strong>ALOS PALSAR (JAXA)</strong> — L-band, useful for canopy penetration and soil detection.</li>
+          <li><strong>UAVSAR / NISAR (NASA/ISRO)</strong> — L-band / multi-frequency options when available.</li>
         </ul>
-        <p>Busque imágenes con múltiples polarizaciones (por ejemplo VV/VH o HH/HV) y varias fechas para análisis temporal.</p>
+        <p>Look for multi-polarization products (e.g., VV/VH or HH/HV) and multiple dates for temporal analysis.</p>
       </section>
 
       <section id="metodologia" class="card">
-        <h2>Metodología (resumen)</h2>
+        <h2>Methodology (summary)</h2>
         <ol>
-          <li>Descargar productos SAR calibrados (sigma0 o gamma0) en GeoTIFF.</li>
-          <li>Convertir a dB: 10 * log10(sigma0) si es necesario.</li>
-          <li>Aplicar filtros espaciales/uplift (opcional) y alinear bandas (reprojectar/resample).</li>
-          <li>Calcular índices comparativos (p. ej. ratio HV/HH, diferencia L/C en dB).</li>
-          <li>Clasificación simple: detección de agua por umbral, detección de cambios entre fechas.</li>
-          <li>Visualizar: composiciones RGB, mapas web (folium) e incluir capas auxiliares (vectores, ortofotos).</li>
+          <li>Download calibrated SAR products (sigma0 or gamma0) as GeoTIFF.</li>
+          <li>Convert to dB: 10 * log10(sigma0) when needed.</li>
+          <li>Apply spatial filters/denoising (optional) and align bands (reproject/resample).</li>
+          <li>Compute comparative indices (e.g., HV/HH ratio, L/C difference in dB).</li>
+          <li>Simple classification: water detection by threshold, change detection between dates.</li>
+          <li>Visualize: RGB composites, web maps (folium) and include auxiliary layers (vectors, orthophotos).</li>
         </ol>
         <div class="code-block">
           <pre id="cmd-example">pip install rasterio numpy matplotlib folium geopandas scikit-image</pre>
-          <button class="copy-btn" data-copy="#cmd-example">Copiar comando</button>
+          <button class="copy-btn" data-copy="#cmd-example">Copy command</button>
         </div>
       </section>
 
       <section id="hipotesis" class="card">
-        <h2>Hipótesis (ejemplos)</h2>
+        <h2>Hypotheses (examples)</h2>
         <ul>
-          <li>Las zonas inundadas aparecerán con valores de retrodispersión muy bajos en todas las polarizaciones de C-band; L-band podría mostrar mayor señal en vegetación sumergida.</li>
-          <li>En bosques densos, L-band (ALOS) mostrará mayor retrodispersión debida a penetración en el dosel, mientras que C-band refleja principalmente la copa.</li>
-          <li>Las diferencias VV/VH (o HH/HV) resaltarán estructuras verticales (árboles, infraestructura) frente a superficies lisas (agua, suelo desnudo).</li>
+          <li>Flooded areas will show very low backscatter in most C-band polarizations; L-band might show stronger returns from submerged vegetation.</li>
+          <li>In dense forests, L-band (ALOS) will show higher backscatter due to canopy penetration, while C-band mainly reflects the canopy.</li>
+          <li>VV/VH (or HH/HV) differences will highlight vertical structures (trees, infrastructure) versus smooth surfaces (water, bare soil).</li>
         </ul>
       </section>
 
       <section id="visualizaciones" class="card">
-        <h2>Visualizaciones sugeridas</h2>
+        <h2>Suggested visualizations</h2>
         <ul>
-          <li>Composición RGB: asignar bandas/fuentes (por ejemplo L-band -> R, C-band -> G, ratio -> B).</li>
-          <li>Mapa de detección de agua por umbral en dB y comparación temporal.</li>
-          <li>Mapa web interactivo (folium) con controles para alternar capas (C-band, L-band, óptico).</li>
+          <li>RGB composite: assign bands/sources (e.g., L-band -> R, C-band -> G, ratio -> B).</li>
+          <li>Water detection map by thresholding in dB and temporal comparison.</li>
+          <li>Interactive web map (folium) with controls to toggle layers (C-band, L-band, optical).</li>
         </ul>
-        <p>Los scripts de ejemplo incluyen un flujo de trabajo mínimo para crear estos productos.</p>
+        <p>The example scripts include a minimal workflow to create these products.</p>
       </section>
 
       <section id="map-section" class="card">
-        <h2>Mapa interactivo (ejemplo)</h2>
-        <p>El mapa a continuación se activa si dispone de una conexión a internet y si se sirven capas raster (tiles) o WMS. Puede usar <code>gdal2tiles</code> o <code>rio-tiler</code> para crear tiles desde GeoTIFFs SAR.</p>
-        <div id="map" style="height:400px; border-radius:8px; overflow:hidden; margin-top:0.5rem;"></div>
-        <div style="margin-top:.5rem; color:#374151; font-size:.9rem;">Controles: cambie la capa base o agregue una URL XYZ/WMS en el README para ver su ráster.</div>
+        <h2>Interactive map (example)</h2>
+        <p>The map below activates if you have an internet connection and serve raster layers (tiles) or WMS. You can use <code>gdal2tiles</code> or <code>rio-tiler</code> to create tiles from SAR GeoTIFFs.</p>
+  <div id="map" style="height:400px; border-radius:8px; overflow:hidden; margin-top:0.5rem;"></div>
+  <div style="margin-top:.5rem; color:#9aa6b2; font-size:.9rem;">Controls: change the base layer or add an XYZ/WMS URL in the README to view your raster. Note: serve this folder via HTTP (e.g., <code>python -m http.server</code>) to allow fetch/tiles to work properly. The smoke prediction uses a probabilistic sampling along the wind trajectory and may query Open-Meteo and Open-Elevation to refine local wind/elevation — these external calls are optional and will fall back if unavailable. The slider is debounced and lookups are cached to reduce network activity while you drag.</div>
+      </section>
+
+      <!-- Plume controls and legend moved outside the map for a cleaner view -->
+      <aside id="plume-controls" class="card plume-panel">
+        <h3>Smoke prediction controls</h3>
+        <label style="font-size:13px;display:block;margin-bottom:6px;">Smoke prediction: <span id="smoke-minutes">120</span> min</label>
+        <input id="smoke-slider" type="range" min="1" max="240" value="120" style="width:100%;">
+        <div style="margin-top:6px;display:flex;gap:8px;align-items:center;"><label style="font-size:12px;margin:0;">Probabilistic</label><input id="prob-toggle" type="checkbox" checked></div>
+        <div class="smoke-stats" style="margin-top:8px;"><div>Temp: <strong id="smoke-temp">—</strong>°C</div><div>Hum: <strong id="smoke-hum">—</strong>%</div></div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:8px 0;"> 
+        <div style="font-size:12px;margin-top:6px;">Visualization controls</div>
+        <label style="font-size:12px;display:block;margin-top:6px;">Sampling step: <strong id="sample-step-val">2.50</strong> km</label>
+        <input id="sample-step" type="range" min="0.25" max="10" step="0.25" value="2.50" style="width:100%;">
+        <label style="font-size:12px;display:block;margin-top:6px;">Base half-width: <strong id="base-width-val">130</strong> m</label>
+        <input id="base-width" type="range" min="50" max="500" step="10" value="130" style="width:100%;">
+        <label style="font-size:12px;display:block;margin-top:6px;">Time coeff (m/min): <strong id="time-coeff-val">16</strong></label>
+        <input id="time-coeff" type="range" min="1" max="30" step="1" value="16" style="width:100%;">
+        <label style="font-size:12px;display:block;margin-top:6px;">Wind multiplier: <strong id="wind-multiplier-val">5.6</strong></label>
+        <input id="wind-multiplier" type="range" min="1" max="10" step="0.1" value="5.6" style="width:100%;">
+        <label style="font-size:12px;display:block;margin-top:6px;">Slope multiplier: <strong id="slope-multiplier-val">1.5</strong></label>
+        <input id="slope-multiplier" type="range" min="1" max="5" step="0.1" value="1.5" style="width:100%;">
+        <label style="font-size:12px;display:block;margin-top:6px;">Jitter (%): <strong id="jitter-val">27</strong></label>
+        <input id="jitter" type="range" min="0" max="50" step="1" value="27" style="width:100%;">
+        <label style="font-size:12px;display:block;margin-top:6px;">Dispersion slope (m per km): <strong id="disp-slope-val">163</strong> m/km</label>
+        <input id="disp-slope" type="range" min="0" max="200" step="1" value="163" style="width:100%;">
+        <label style="font-size:12px;display:block;margin-top:6px;">Plume opacity: <strong id="opacity-val">0.26</strong></label>
+        <input id="plume-opacity" type="range" min="0.05" max="1" step="0.01" value="0.26" style="width:100%;">
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:8px 0;"> 
+        <!-- Weather chart moved here under the controls -->
+        <div class="controls-chart" style="margin-top:8px;">
+          <canvas id="weather-chart" width="320" height="200"></canvas>
+        </div>
+      </aside>
+
+      <!-- FIRMS (NASA) fire hotspots controls -->
+      <section id="firms-panel" class="card">
+        <h3>FIRMS — Hotspot (VIIRS) overlay</h3>
+        <p>Introduce tu API key de FIRMS y descarga puntos calientes (CSV). Puedes mostrar los puntos sobre el mapa.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <input id="firms-api-key" type="text" placeholder="FIRMS API key" style="flex:1;min-width:180px;padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);" />
+          <select id="firms-sensor" style="padding:.4rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);">
+            <option value="VIIRS_SNPP_NRT">VIIRS_SNPP_NRT (NRT)</option>
+            <option value="VIIRS_NOAA20_NRT">VIIRS_NOAA20_NRT (NRT)</option>
+            <option value="MODIS_TERRA_C6">MODIS_TERRA_C6</option>
+          </select>
+          <button id="firms-load" class="map-control-btn primary">Cargar FIRMS</button>
+          <button id="firms-clear" class="map-control-btn ghost">Limpiar FIRMS</button>
+          <label class="map-control-btn" style="display:inline-flex;align-items:center;gap:8px;padding:.35rem .5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
+            <input id="firms-file" type="file" accept=".csv" style="display:inline-block;" />
+            Cargar CSV
+          </label>
+          <a href="sample_firms.csv" download class="map-control-btn ghost" style="text-decoration:none;">Descargar CSV ejemplo</a>
+          <button id="firms-show-sample" class="map-control-btn primary">Mostrar históricos (ejemplo)</button>
+          <label style="display:flex;align-items:center;gap:6px;color:var(--muted);">
+            <input id="firms-cluster-toggle" type="checkbox" checked /> Agrupar (clustering)
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;color:var(--muted);">
+            <input id="firms-buffer-toggle" type="checkbox" /> Mostrar buffers
+          </label>
+          <input id="firms-buffer-radius" type="number" value="500" min="10" step="10" style="width:90px;padding:.35rem;border-radius:6px;border:1px solid rgba(255,255,255,0.04);" />
+        </div>
+        <div id="firms-status" style="margin-top:8px;color:var(--muted);font-size:0.9rem;"></div>
       </section>
 
       <section id="weather-panel" class="card">
-        <h2>Clima local y riesgo de incendio</h2>
-        <p>Haz clic en el mapa para obtener la temperatura, humedad y viento en ese punto. Se muestra además un indicador de riesgo de incendio (heurístico): <em>Alto</em>, <em>Moderado</em> o <em>Bajo</em>.</p>
+        <h2>Local weather & fire risk</h2>
+        <p>Click on the map to get temperature, humidity and wind at that point. A simple heuristic fire-risk indicator is shown: <em>High</em>, <em>Moderate</em> or <em>Low</em>.</p>
         <div id="weather-info" class="weather-grid">
           <div class="weather-left">
-            <p>Haz clic en el mapa para consultar el clima y evaluar un posible riesgo de incendios.</p>
+            <p>Click on the map to query weather and evaluate potential fire risk.</p>
             <div id="weather-details"></div>
-            <button id="download-csv" class="csv-btn">Descargar registros (CSV)</button>
+            <button id="download-csv" class="csv-btn">Download records (CSV)</button>
           </div>
           <div class="weather-right">
-            <canvas id="weather-chart" width="320" height="200"></canvas>
+            <!-- Chart moved to plume controls for unified UI -->
           </div>
         </div>
       </section>
 
       <section id="recursos" class="card">
-        <h2>Recursos y enlaces</h2>
+        <h2>Resources & links</h2>
         <ul>
           <li>Copernicus Open Access Hub — Sentinel-1 (C-band)</li>
-          <li>Alaska Satellite Facility (ASF) — búsqueda y descarga (varios sensores)</li>
-          <li>Sentinelsat (Python) — cliente para descargar Sentinel desde Copernicus</li>
+          <li>Alaska Satellite Facility (ASF) — search and download (various sensors)</li>
+          <li>Sentinelsat (Python) — client to download Sentinel products from Copernicus</li>
         </ul>
-        <p>Consulte el <a href="README.md">README</a> incluido para comandos concretos y pasos reproducibles.</p>
+        <p>See the included <a href="README.md">README</a> for exact commands and reproducible steps.</p>
       </section>
 
       <footer class="site-footer">
-        <p>Plantilla profesional generada para un proyecto de teledetección SAR. Puede editarla y usarla como informe o punto de partida para una presentación.</p>
+        <p>Professional template for a SAR remote sensing project. Edit and use as a report or starting point for a presentation.</p>
       </footer>
     </main>
 
     <script src="script.js"></script>
+    <!-- Load PapaParse and MarkerCluster after main script to keep original init order; script.js will detect them if available -->
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster-src.js"></script>
   </body>
 </html>

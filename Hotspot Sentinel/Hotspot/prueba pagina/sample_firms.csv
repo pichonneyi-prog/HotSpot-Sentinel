@@ -1,0 +1,4 @@
+latitude,longitude,bright_ti4,bright_ti5,scan,track,acq_date,acq_time,satellite,confidence,version,bright_t31,frp
+-36.1124,-67.1704,312.5,290.1,0.51,0.76,2025-10-04,22:00,VIIRS_SNPP_NRT,high,1.0,280.0,15.7
+-36.1200,-67.1600,290.2,275.0,0.40,0.70,2025-10-04,21:30,VIIRS_SNPP_NRT,nominal,1.0,270.0,7.3
+-36.1300,-67.1800,270.8,260.2,0.48,0.72,2025-10-04,20:45,VIIRS_SNPP_NRT,low,1.0,255.0,2.1

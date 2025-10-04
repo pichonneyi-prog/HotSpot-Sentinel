@@ -69,7 +69,36 @@ body {
 
 @media (max-width:600px) {
 	.container { padding: 0 .5rem; }
-	.toc { gap:.25rem; }
+ 	.toc { gap:.25rem; }
+
+	/* Header stacks on mobile */
+	.header-row { flex-direction: column; align-items: flex-start; gap: .5rem; }
+	.nasa-badge { align-self: flex-start; }
+
+	/* Make TOC horizontally scrollable */
+	.toc { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+	.toc-btn { flex: 0 0 auto; }
+
+	/* Cards full width and spacing */
+	.card { padding: .875rem; }
+
+	/* Map full width and responsive height */
+	#map { height: 320px !important; }
+
+	/* Weather panel stacks vertically */
+	.weather-grid { flex-direction: column; }
+	.weather-right { width: 100%; }
+	.weather-left { width: 100%; }
+
+	/* Map control buttons full-width on mobile */
+	.map-control-btn { display:block; width:100%; margin: .5rem 0; }
+}
+
+/* Larger tablet breakpoint tweaks */
+@media (min-width:601px) and (max-width:992px) {
+	.container { max-width: 880px; }
+	#map { height: 360px; }
+	.weather-right { width: 300px; }
 }
 
 /* Map marker icon tweaks */
@@ -77,5 +106,152 @@ body {
 .fire-emoji-icon { pointer-events: auto; text-shadow: 0 1px 0 rgba(0,0,0,0.15); }
 
 /* Small legend control for Leaflet */
-.map-legend { background: rgba(3,6,12,0.85); padding: .5rem .6rem; border-radius:6px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); font-size:0.85rem; color:#e6eef6; border:1px solid rgba(255,255,255,0.03); }
+.map-legend { background: rgba(3,6,12,0.85); padding: .5rem .6rem; border-radius:6px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); font-size:0.85rem; color:#e6eef6; border: 1px solid rgba(255,255,255,0.03); }
 .map-legend strong { display:block; margin-bottom:6px; color:#fff; }
+
+/* Basemap status control */
+.basemap-status { font-family: Inter, Arial, sans-serif; box-shadow: 0 6px 12px rgba(0,0,0,0.45); }
+
+/* Smoke prediction control (overlay on the right side of the map) */
+.smoke-control { position: absolute; right: 12px; top: 110px; z-index: 600; }
+.smoke-box { background: rgba(2,6,23,0.85); color: #e6eef6; padding: 8px 10px; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.03); font-size: 13px; }
+.smoke-box input[type=range] { margin: 6px 0 8px 0; }
+.smoke-box .smoke-stats { display:flex; gap:12px; margin-top:6px; color: var(--muted); }
+/* Toggle styling */
+.smoke-box input[type=checkbox] { transform: scale(1.05); margin-left:6px; }
+
+/* External plume controls panel (moved out of map) */
+.plume-panel {
+	position: relative;
+	/* fixed width avoids reflow/jitter when contents resize */
+	width: 360px;
+	max-width: 360px;
+	margin-top: 1rem;
+	float: right;
+	box-sizing: border-box;
+	display: block;
+	/* allow internal scroll if the panel is taller than the viewport */
+	overflow: auto;
+}
+.plume-panel h3 { margin-top: 0; font-size: 1rem; font-family: 'Orbitron', Inter, sans-serif; }
+.plume-panel label { color: var(--muted); }
+.plume-panel input[type=range] {
+	margin-top: 6px;
+	/* ensure sliders take the full available width and behave as block elements */
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	appearance: none;
+}
+.plume-panel .map-legend { margin-top: 8px; }
+
+@media (max-width:900px) {
+	.plume-panel { float:none; width: 100%; max-width: none; }
+}
+
+/* Adjust layout for map and controls */
+main.container {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 1rem;
+}
+
+/* Ensure the map occupies the central area */
+#map-section {
+    grid-row: 1;
+}
+
+/* Place controls and other content below the map */
+.plume-panel {
+    grid-row: 2;
+    width: 100%;
+    max-width: none;
+    margin-top: 0;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    main.container {
+        grid-template-rows: auto auto;
+    }
+
+    #map-section {
+        grid-row: 1;
+    }
+
+    .plume-panel {
+        grid-row: 2;
+    }
+}
+
+/* Chart inside the controls panel */
+.controls-chart { padding-top:8px; }
+.controls-chart canvas { width: 100% !important; height: 180px !important; max-height: 220px; }
+
+/* Compact small chart variant used for the weather widget (small & interactive) */
+.controls-chart.compact { max-width: 220px; padding: 0.5rem; height: 140px; }
+.controls-chart.compact canvas { height: 120px !important; max-height: 140px; }
+
+
+#weather-panel .controls-chart {
+  max-width: 400px;
+  height: 200px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+#weather-panel .controls-chart svg {
+  font-family: 'Inter', sans-serif;
+  color: #e6eef6;
+}
+
+#weather-panel .controls-chart .axis {
+  stroke: rgba(255,255,255,0.3);
+  font-size: 0.9rem;
+}
+
+#weather-panel .controls-chart .line {
+  stroke-width: 2.5px;
+}
+
+#weather-panel .controls-chart .line.temperature {
+  stroke: #ff5252;
+}
+
+#weather-panel .controls-chart .line.humidity {
+  stroke: #42a5f5;
+}
+
+#weather-panel {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+#weather-panel .sliders {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.7);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+#weather-panel .controls-chart {
+  flex: 1;
+  max-width: 500px;
+  height: 250px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.7);
+  border: 1px solid rgba(255,255,255,0.05);
+}
