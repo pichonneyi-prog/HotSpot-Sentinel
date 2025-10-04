@@ -1,0 +1,63 @@
+/* Reemplazo completo del CSS con estilos profesionales para la plantilla SAR */
+:root {
+	--bg: #f7f9fb;
+	--card: #ffffff;
+	--accent: #0b6e99;
+	--muted: #6b7280;
+}
+
+* { box-sizing: border-box; }
+
+body {
+	margin: 0;
+	font-family: Inter, Arial, Helvetica, sans-serif;
+	background: var(--bg);
+	color: #111827;
+	-webkit-font-smoothing: antialiased;
+}
+
+.container {
+	max-width: 980px;
+	margin: 1.25rem auto;
+	padding: 0 1rem;
+}
+
+.site-header {
+	background: linear-gradient(90deg,#083e60,#0b6e99);
+	color: #fff;
+	padding: 1.25rem 0.5rem;
+}
+
+.site-header h1 { margin: 0; font-size: 1.5rem; }
+.site-header .lead { margin: .25rem 0 0; color: rgba(255,255,255,0.9); }
+
+.toc { display:flex; flex-wrap:wrap; gap: .5rem; margin: 1rem 0; }
+.toc-btn {
+	background: #fff; border: 1px solid #e6eef6; padding:.5rem .75rem; border-radius:6px; cursor:pointer; color:var(--accent);
+}
+.toc-btn:hover { background:#f0fbff; }
+
+.card { background:var(--card); border-radius:8px; padding:1rem; margin-bottom:1rem; box-shadow: 0 1px 0 rgba(16,24,40,0.03); }
+.card h2 { margin-top: 0; color: #0f172a; }
+.card p, .card ul, .card ol { color: #323f4b; }
+
+.code-block { background:#0b2c3a; color:#d6f5ff; padding: .75rem; border-radius:6px; display:flex; align-items:center; gap:.5rem; }
+.code-block pre { margin:0; white-space:pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:.9rem; }
+.copy-btn { margin-left:auto; background:var(--accent); color:#fff; border:none; padding:.45rem .6rem; border-radius:6px; cursor:pointer; }
+
+.site-footer { text-align:center; color:var(--muted); padding:1rem 0; }
+
+/* Panel de clima y riesgo */
+.risk-high { color: #b91c1c; font-weight: 700; }
+.risk-moderate { color: #b45309; font-weight: 700; }
+.risk-low { color: #065f46; font-weight: 700; }
+.csv-btn { margin-top:.5rem; background:#0b6e99; color:#fff; border:none; padding:.45rem .6rem; border-radius:6px; cursor:pointer; }
+
+.weather-grid { display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap; }
+.weather-left { flex: 1 1 320px; }
+.weather-right { width: 320px; }
+
+@media (max-width:600px) {
+	.container { padding: 0 .5rem; }
+	.toc { gap:.25rem; }
+}

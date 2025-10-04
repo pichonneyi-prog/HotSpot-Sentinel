@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Proyecto SAR — Análisis Multibanda y Multipolarización</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <h1>Proyecto SAR — Análisis Multibanda y Multipolarización</h1>
+        <p class="lead">Un informe profesional (plantilla) en español para analizar datos SAR de distintas frecuencias y polarizaciones.</p>
+      </div>
+    </header>
+
+    <main class="container">
+      <nav class="toc">
+        <button data-target="#resumen" class="toc-btn">Resumen</button>
+        <button data-target="#area" class="toc-btn">Área de estudio</button>
+        <button data-target="#datasets" class="toc-btn">Datasets</button>
+        <button data-target="#metodologia" class="toc-btn">Metodología</button>
+        <button data-target="#hipotesis" class="toc-btn">Hipótesis</button>
+        <button data-target="#visualizaciones" class="toc-btn">Visualizaciones</button>
+        <button data-target="#recursos" class="toc-btn">Recursos</button>
+      </nav>
+
+      <section id="resumen" class="card">
+        <h2>Resumen</h2>
+        <p>Como Alicia atravesando el espejo, este proyecto utiliza datos de radar de apertura sintética (SAR) en distintas frecuencias y polarizaciones para revelar procesos físicos en la superficie terrestre. La plantilla guía al investigador desde la descarga de datos hasta métodos básicos de procesamiento y visualización, e incluye scripts de ejemplo reproducibles.</p>
+      </section>
+
+      <section id="area" class="card">
+        <h2>Área de estudio (ejemplo)</h2>
+        <p>Ejemplo propuesto: Delta del Ebro (Cataluña, España). Se trata de una zona de transición terrestre-marina con humedales, canales, vegetación y actividad humana. Es ideal para comparar respuestas en C-band vs L-band y polarizaciones (VV/VH o HH/HV).</p>
+      </section>
+
+      <section id="datasets" class="card">
+        <h2>Datasets recomendados</h2>
+        <ul>
+          <li><strong>Sentinel-1 (ESA)</strong> — Banda C, polarizaciones VV y VH (descarga gratuita vía Copernicus/SciHub o AWS).</li>
+          <li><strong>ALOS PALSAR (JAXA)</strong> — Banda L, útil para penetración de dosel y detección de suelo.</li>
+          <li><strong>UAVSAR / NISAR (NASA/ISRO)</strong> — opciones L-band/multifrecuencia cuando estén disponibles.</li>
+        </ul>
+        <p>Busque imágenes con múltiples polarizaciones (por ejemplo VV/VH o HH/HV) y varias fechas para análisis temporal.</p>
+      </section>
+
+      <section id="metodologia" class="card">
+        <h2>Metodología (resumen)</h2>
+        <ol>
+          <li>Descargar productos SAR calibrados (sigma0 o gamma0) en GeoTIFF.</li>
+          <li>Convertir a dB: 10 * log10(sigma0) si es necesario.</li>
+          <li>Aplicar filtros espaciales/uplift (opcional) y alinear bandas (reprojectar/resample).</li>
+          <li>Calcular índices comparativos (p. ej. ratio HV/HH, diferencia L/C en dB).</li>
+          <li>Clasificación simple: detección de agua por umbral, detección de cambios entre fechas.</li>
+          <li>Visualizar: composiciones RGB, mapas web (folium) e incluir capas auxiliares (vectores, ortofotos).</li>
+        </ol>
+        <div class="code-block">
+          <pre id="cmd-example">pip install rasterio numpy matplotlib folium geopandas scikit-image</pre>
+          <button class="copy-btn" data-copy="#cmd-example">Copiar comando</button>
+        </div>
+      </section>
+
+      <section id="hipotesis" class="card">
+        <h2>Hipótesis (ejemplos)</h2>
+        <ul>
+          <li>Las zonas inundadas aparecerán con valores de retrodispersión muy bajos en todas las polarizaciones de C-band; L-band podría mostrar mayor señal en vegetación sumergida.</li>
+          <li>En bosques densos, L-band (ALOS) mostrará mayor retrodispersión debida a penetración en el dosel, mientras que C-band refleja principalmente la copa.</li>
+          <li>Las diferencias VV/VH (o HH/HV) resaltarán estructuras verticales (árboles, infraestructura) frente a superficies lisas (agua, suelo desnudo).</li>
+        </ul>
+      </section>
+
+      <section id="visualizaciones" class="card">
+        <h2>Visualizaciones sugeridas</h2>
+        <ul>
+          <li>Composición RGB: asignar bandas/fuentes (por ejemplo L-band -> R, C-band -> G, ratio -> B).</li>
+          <li>Mapa de detección de agua por umbral en dB y comparación temporal.</li>
+          <li>Mapa web interactivo (folium) con controles para alternar capas (C-band, L-band, óptico).</li>
+        </ul>
+        <p>Los scripts de ejemplo incluyen un flujo de trabajo mínimo para crear estos productos.</p>
+      </section>
+
+      <section id="map-section" class="card">
+        <h2>Mapa interactivo (ejemplo)</h2>
+        <p>El mapa a continuación se activa si dispone de una conexión a internet y si se sirven capas raster (tiles) o WMS. Puede usar <code>gdal2tiles</code> o <code>rio-tiler</code> para crear tiles desde GeoTIFFs SAR.</p>
+        <div id="map" style="height:400px; border-radius:8px; overflow:hidden; margin-top:0.5rem;"></div>
+        <div style="margin-top:.5rem; color:#374151; font-size:.9rem;">Controles: cambie la capa base o agregue una URL XYZ/WMS en el README para ver su ráster.</div>
+      </section>
+
+      <section id="weather-panel" class="card">
+        <h2>Clima local y riesgo de incendio</h2>
+        <p>Haz clic en el mapa para obtener la temperatura, humedad y viento en ese punto. Se muestra además un indicador de riesgo de incendio (heurístico): <em>Alto</em>, <em>Moderado</em> o <em>Bajo</em>.</p>
+        <div id="weather-info" class="weather-grid">
+          <div class="weather-left">
+            <p>Haz clic en el mapa para consultar el clima y evaluar un posible riesgo de incendios.</p>
+            <div id="weather-details"></div>
+            <button id="download-csv" class="csv-btn">Descargar registros (CSV)</button>
+          </div>
+          <div class="weather-right">
+            <canvas id="weather-chart" width="320" height="200"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section id="recursos" class="card">
+        <h2>Recursos y enlaces</h2>
+        <ul>
+          <li>Copernicus Open Access Hub — Sentinel-1 (C-band)</li>
+          <li>Alaska Satellite Facility (ASF) — búsqueda y descarga (varios sensores)</li>
+          <li>Sentinelsat (Python) — cliente para descargar Sentinel desde Copernicus</li>
+        </ul>
+        <p>Consulte el <a href="README.md">README</a> incluido para comandos concretos y pasos reproducibles.</p>
+      </section>
+
+      <footer class="site-footer">
+        <p>Plantilla profesional generada para un proyecto de teledetección SAR. Puede editarla y usarla como informe o punto de partida para una presentación.</p>
+      </footer>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
