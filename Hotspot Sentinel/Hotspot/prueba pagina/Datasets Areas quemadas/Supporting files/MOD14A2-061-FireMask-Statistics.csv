@@ -1,2 +1,0 @@
-File,aid,Date,(3) non-fire water pixel,(4) cloud (land or water),(5) non-fire land pixel,(6) unknown (land or water),"(7) fire (low confidence, land or water)","(8) fire (nominal confidence, land or water)","(9) fire (high confidence, land or water)"
-FireMask_2025265_aid0001,aid0001,2025-09-22 00:00:00+00:00,4309245,85693,6276924,24,111,1769,728
